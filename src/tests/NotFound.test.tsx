@@ -9,3 +9,10 @@ test('Testando página NotFound', () => {
   expect(heading).toHaveTextContent(/page requested not found/i);
   expect(heading).toBeInTheDocument();
 });
+
+test('Testa se a pagina mostra a imagem solicidata', () => {
+  renderWithRouter(<NotFound />);
+
+  const image = screen.getByRole('img');
+  expect(image).toHaveTextContent('https://media.giphy.com/media/kNSeTs31XBZ3G/giphy.gif');
+});

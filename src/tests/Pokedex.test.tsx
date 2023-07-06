@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import pokemonList from '../data';
 import { Pokedex } from '../pages';
 import renderWithRouter from '../renderWithRouter';
@@ -14,7 +15,7 @@ describe('Testando Pokedex', () => {
     expect(heading).toHaveTextContent(/Encountered Pokémon/i);
   });
 
-  test('Testa se exibe o próximo pokemon depois de clicar no botao', () => {
+  test('Testa se exibe o próximo pokemon depois de clicar no botao', async () => {
     renderWithRouter(<Pokedex
       pokemonList={ pokemonList }
       favoritePokemonIdsObj={ {} }
@@ -23,5 +24,10 @@ describe('Testando Pokedex', () => {
     const nextPokemonId = screen.getByTestId('next-pokemon');
     expect(nextPokemonId).toHaveTextContent(/Próximo Pokémon/i);
     expect(nextPokemonId).toBeInTheDocument();
+
+    await userEvent.click(nextPokemonId);
+
+    const image = screen.getAllByRole('img');
+    expect(image.length).toBe(1);
   });
 });
