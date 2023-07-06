@@ -30,4 +30,22 @@ describe('Testando Pokedex', () => {
     const image = screen.getAllByRole('img');
     expect(image.length).toBe(1);
   });
+
+  test('Testa se a Pokédex tem os botões de filtro', () => {
+    renderWithRouter(<Pokedex
+      pokemonList={ pokemonList }
+      favoritePokemonIdsObj={ {} }
+    />);
+
+    const types = screen.getAllByTestId('pokemon-type-button');
+
+    expect(types).toHaveLength(7);
+    expect(types[0].textContent).toBe('Electric');
+    expect(types[1].textContent).toBe('Fire');
+    expect(types[2].textContent).toBe('Bug');
+    expect(types[3].textContent).toBe('Poison');
+    expect(types[4].textContent).toBe('Psychic');
+    expect(types[5].textContent).toBe('Normal');
+    expect(types[6].textContent).toBe('Dragon');
+  });
 });
