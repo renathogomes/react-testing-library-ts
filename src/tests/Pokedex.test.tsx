@@ -1,51 +1,57 @@
-import { screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import pokemonList from '../data';
 import { Pokedex } from '../pages';
-import renderWithRouter from '../renderWithRouter';
+import pokemonList from '../data';
 
-describe('Testando Pokedex', () => {
-  test('Testa se existe um h2 com o título "Encountered Pokémon"', () => {
-    renderWithRouter(<Pokedex
-      pokemonList={ pokemonList }
-      favoritePokemonIdsObj={ {} }
-    />);
+const renderRepet = () => {
+  render(<Pokedex
+    pokemonList={ pokemonList }
+    favoritePokemonIdsObj={ {} }
+  />);
+};
 
-    const heading = screen.getByRole('heading', { level: 2 });
-    expect(heading).toHaveTextContent(/Encountered Pokémon/i);
-  });
+test('Testando os elementos da pagina pokedex', () => {
+  renderRepet();
+  const titleH2 = screen.getByRole('heading', { level: 2, name: /encountered pokémon/i });
 
-  test('Testa se exibe o próximo pokemon depois de clicar no botao', async () => {
-    renderWithRouter(<Pokedex
-      pokemonList={ pokemonList }
-      favoritePokemonIdsObj={ {} }
-    />);
+  expect(titleH2).toBeInTheDocument();
+});
 
-    const nextPokemonId = screen.getByTestId('next-pokemon');
-    expect(nextPokemonId).toHaveTextContent(/Próximo Pokémon/i);
-    expect(nextPokemonId).toBeInTheDocument();
+test('Testa se é exibido o próximo Pokémon da lista quando o botão Próximo Pokémon é clicado', async () => {
+  renderRepet();
 
-    await userEvent.click(nextPokemonId);
+  // acessar
 
-    const image = screen.getAllByRole('img');
-    expect(image.length).toBe(1);
-  });
+  const pokemonId = screen.getByTestId('next-pokemon');
+  const img = screen.getAllByRole('img');
 
-  test('Testa se a Pokédex tem os botões de filtro', () => {
-    renderWithRouter(<Pokedex
-      pokemonList={ pokemonList }
-      favoritePokemonIdsObj={ {} }
-    />);
+  // agir
 
-    const types = screen.getAllByTestId('pokemon-type-button');
+  await userEvent.click(pokemonId);
+  // averiguar
 
-    expect(types).toHaveLength(7);
-    expect(types[0].textContent).toBe('Electric');
-    expect(types[1].textContent).toBe('Fire');
-    expect(types[2].textContent).toBe('Bug');
-    expect(types[3].textContent).toBe('Poison');
-    expect(types[4].textContent).toBe('Psychic');
-    expect(types[5].textContent).toBe('Normal');
-    expect(types[6].textContent).toBe('Dragon');
-  });
+  expect(pokemonId).screen.getByRole('button', { name: /próximo pokémon/i });
+  expect(pokemonId).toBeInTheDocument();
+  expect(img.length).toBe(1);
+});
+
+test('Testa se a Pokédex tem os botões de filtro', () => {
+  renderRepet();
+
+  const resetBtn = screen.getByRole('button', { name: /resetar filtro/i });
+  expect(resetBtn).toBeInTheDocument();
+});
+test('Testa se a Pokédex tem os botões de filtro', () => {
+  renderRepet();
+
+  const types = screen.getAllByTestId('pokemon-type-button');
+
+  expect(types).toHaveLength(7);
+  expect(types[0].textContent).toBe('Electric');
+  expect(types[1].textContent).toBe('Fire');
+  expect(types[2].textContent).toBe('Bug');
+  expect(types[3].textContent).toBe('Poison');
+  expect(types[4].textContent).toBe('Psychic');
+  expect(types[5].textContent).toBe('Normal');
+  expect(types[6].textContent).toBe('Dragon');
 });
