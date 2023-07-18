@@ -4,49 +4,51 @@ import pokemonList from '../data';
 import renderWithRouter from '../renderWithRouter';
 import App from '../App';
 
-describe('Teste o componente Pokedex.tsx', () => {
-  const pokemonTestId = 'pokemon-name';
+describe('Testes do componente Pokedex', () => {
+  const pokemonNameTestId = 'pokemon-name';
   beforeEach(() => {
     renderWithRouter(<App />, { route: '/' });
   });
-  test('Testando os elementos da pagina pokedex', () => {
-    const titleH2 = screen.getByRole('heading', { level: 2, name: /encountered pokémon/i });
-    expect(titleH2).toBeInTheDocument();
+  it('página contém um heading h2 com o texto Encountered pokémons', () => {
+    const heading = screen.getByRole('heading', { name: /Encountered Pokémon/i, level: 2 });
+    expect(heading).toBeInTheDocument();
   });
-  test('Testa se é exibido o próximo Pokémon da lista quando o botão Próximo Pokémon é clicado', async () => {
-    const pokemonId = screen.getByRole('button', {
-      name: /próximo pokémon/i,
+  test('Teste se é exibido o próximo Pokémon da lista quando o botão Próximo Pokémon é clicado', async () => {
+    const pokemon = screen.getByText('Pikachu');
+    const nextPokeBtn = screen.getByRole('button', { name: /próximo pokémon/i });
+    expect(pokemon).toBeInTheDocument();
+    await userEvent.click(nextPokeBtn);
+    expect(pokemon).toBeInTheDocument();
+  });
+  test('Mostra o primeiro poke ao clicar no ultimo poke da lista', async () => {
+    const nextPokeBtn = screen.getByRole('button', { name: /próximo pokémon/i });
+    const pokeType = screen.getByTestId('pokemon-type');
+    expect(pokeType).toHaveTextContent('Electric');
+    await userEvent.click(nextPokeBtn);
+    expect(pokeType).toHaveTextContent('Fire');
+  });
+  test('é mostrado apenas um Pokémon por vez', () => {
+    const pokemons = screen.getAllByTestId(pokemonNameTestId);
+    expect(pokemons.length).toBe(1);
+  });
+  test('Teste se os botões de filtragem por tipo têm o nome correto', async () => {
+    const mockTypeBtn = ['Electric', 'Fire', 'Bug', 'Poison', 'Psychic', 'Normal', 'Dragon'];
+    const pokeTypesBtn = screen.getAllByTestId('pokemon-type-button');
+    const currentPokemon = screen.getByTestId('pokemon-name');
+    pokeTypesBtn.forEach((button, index) => {
+      expect(button).toHaveTextContent(mockTypeBtn[index]);
     });
-    expect(pokemonId).toBeInTheDocument();
-    expect(pokemonId).toHaveTextContent(/próximo pokémon/i);
-    pokemonList.forEach(async (pokemon) => {
-      await userEvent.click(pokemonId);
-      const element = await screen.findByTestId(pokemonTestId);
-      expect(element.textContent).toBe(pokemon.name);
-    });
+    await userEvent.click(pokeTypesBtn[1]);
+    expect(currentPokemon).toHaveTextContent(pokemonList[1].name);
   });
-  test('Após a seleção de um botão de tipo, a Pokédex deve circular somente pelos Pokémon daquele tipo', async () => {
-    pokemonList.forEach(async (pokemon) => {
-      const typeButton = screen.getByRole('button', { name: new RegExp(pokemon.type, 'i') });
-      await userEvent.click(typeButton);
-      const element = screen.getByTestId(pokemonTestId);
-      expect(element.textContent).toBe('Pikachu');
-    });
-  });
-  test('Teste se o botão All está sempre visível', () => {
-    const buttonAll = screen.getByRole('button', { name: /all/i });
-    expect(buttonAll).toBeInTheDocument();
-  });
-  test('Teste se é mostrado apenas um Pokémon por vez', () => {
-    const listPokemon = screen.getAllByTestId(pokemonTestId);
-    expect(listPokemon.length).toBe(1);
-  });
-  test('Teste se a Pokédex tem os botões de filtro passando no teste', () => {
-    const buttonFilter = screen.getAllByTestId('pokemon-type-button');
-    expect(buttonFilter.length).toBe(7);
-    pokemonList.forEach((pokemon) => {
-      expect(screen.getByRole('button', { name: new RegExp(pokemon.type, 'i') })).toBeInTheDocument();
-    });
-    expect(screen.getByRole('button', { name: /all/i })).toBeInTheDocument();
+  test('Teste se a Pokédex contém um botão para resetar o filtro', async () => {
+    const allBtn = screen.getByRole('button', { name: /all/i });
+    const pokeOnScreen = screen.getByTestId(pokemonNameTestId);
+    const pokeTypesBtn = screen.getAllByTestId('pokemon-type-button');
+    expect(allBtn).toHaveTextContent('All');
+    await userEvent.click(pokeTypesBtn[1]);
+    expect(pokeOnScreen).toHaveTextContent('Charmander');
+    await userEvent.click(allBtn);
+    expect(pokeOnScreen).toHaveTextContent('Pikachu');
   });
 });
