@@ -32,8 +32,8 @@ describe('Testa requisito 7', () => {
   });
   test('Testa se o usuário pode favoritar um Pokémon por meio da página de detalhes', async () => {
     const checkeBox = screen.getByRole('checkbox');
-    /* const labelCheckeBox = screen.getByLabelText('Pokémon favoritado?');
-    expect(labelCheckeBox).toBeInTheDocument(); */
+    const labelCheckeBox = screen.getByLabelText('Pokémon favoritado?');
+    expect(labelCheckeBox).toBeInTheDocument();
     expect(checkeBox).toBeInTheDocument();
 
     fireEvent.click(checkeBox);
